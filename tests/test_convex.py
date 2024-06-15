@@ -40,6 +40,8 @@ class TestPoint(unittest.TestCase):
     # Инициализация (выполняется для каждого из тестов класса)
     def setUp(self):
         self.f = Point(R2Point(0.0, 0.0))
+        self.p1 = Point(R2Point(0.5, 0.5))
+        self.p2 = Point(R2Point(-0.5, -0.5))
 
     # Одноугольник является фигурой
     def test_figure(self):
@@ -68,6 +70,14 @@ class TestPoint(unittest.TestCase):
     # Точка лежит на заданном прямоугольнике
     def test_intersections1(self):
         self.assertEqual(self.f.intersections(), 1)
+
+    # Точка лежит внутри заданного прямоугольника
+    def test_intersections2(self):
+        self.assertEqual(self.p1.intersections(), 0)
+
+    # Точка лежит вне заданного прямоугольника
+    def test_intersections3(self):
+        self.assertEqual(self.p2.intersections(), 0)
 
 
 class TestSegment(unittest.TestCase):
@@ -114,6 +124,26 @@ class TestSegment(unittest.TestCase):
     # При добавлении точки двуугольник может превратиться в треугольник
     def test_add5(self):
         self.assertIsInstance(self.f.add(R2Point(0.0, 1.0)), Polygon)
+
+    # Отрезок пересекает прямоугольник в 2 точках
+    def test_intersections1(self):
+        segment = Segment(R2Point(-0.5, 0.5), R2Point(1.5, 0.5))
+        self.assertEqual(segment.intersections(), 2)
+
+    # Отрезок вне прямоугольника
+    def test_intersections2(self):
+        segment = Segment(R2Point(-1.0, 0.5), R2Point(-0.5, 0.5))
+        self.assertEqual(segment.intersections(), 0)
+
+    # Отрезок внутри прямоугольника
+    def test_intersections3(self):
+        segment = Segment(R2Point(0.1, 0.1), R2Point(0.9, 0.9))
+        self.assertEqual(segment.intersections(), 0)
+
+    # Отрезок на стороне прямоугольника
+    def test_intersections4(self):
+        segment = Segment(R2Point(0.1, 0.0), R2Point(0.9, 0.0))
+        self.assertEqual(segment.intersections(), inf)
 
 
 class TestPolygon(unittest.TestCase):
