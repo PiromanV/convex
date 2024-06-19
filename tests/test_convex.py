@@ -67,6 +67,7 @@ class TestPoint(unittest.TestCase):
     def test_add2(self):
         self.assertIsInstance(self.f.add(R2Point(1.0, 0.0)), Segment)
 
+    # Блок тестов на вычисление количества пересечений с заданным прямоугольником
     # Точка лежит на заданном прямоугольнике
     def test_intersections1(self):
         self.assertEqual(self.f.intersections(), 1)
@@ -125,6 +126,7 @@ class TestSegment(unittest.TestCase):
     def test_add5(self):
         self.assertIsInstance(self.f.add(R2Point(0.0, 1.0)), Polygon)
 
+    # Блок тестов на вычисление количества пересечений с заданным прямоугольником
     # Отрезок пересекает прямоугольник в 2 точках
     def test_intersections1(self):
         segment = Segment(R2Point(-0.5, 0.5), R2Point(1.5, 0.5))
@@ -207,3 +209,44 @@ class TestPolygon(unittest.TestCase):
     #   добавление точки может увеличить площадь
     def test_area2(self):
         self.assertAlmostEqual(self.f.add(R2Point(1.0, 1.0)).area(), 1.0)
+
+    # Блок тестов на вычисление количества пересечений с заданным прямоугольником
+    # Выпуклая оболочка лежит внутри прямоугольника
+    def test_intersections1(self):
+        a = R2Point(0.1, 0.1)
+        b = R2Point(0.1, 0.9)
+        c = R2Point(0.9, 0.9)
+        f = Polygon(a, b, c)
+        self.assertEqual(f.intersections(), 0)
+
+    # Выпуклая оболочка лежит вне прямоугольника
+    def test_intersections2(self):
+        a = R2Point(0.1, -0.1)
+        b = R2Point(0.1, -0.9)
+        c = R2Point(0.9, -0.9)
+        f = Polygon(a, b, c)
+        self.assertEqual(f.intersections(), 0)
+
+    # Выпуклая оболочка пересекает прямоугольник
+    def test_intersections3(self):
+        a = R2Point(0.1, -0.1)
+        b = R2Point(0.1, 0.9)
+        c = R2Point(0.9, 0.9)
+        f = Polygon(a, b, c)
+        self.assertEqual(f.intersections(), 2)
+
+    # Выпуклая оболочка имеет бесконечно много точек пересечения с прямоугольником
+    def test_intersections4(self):
+        a = R2Point(0.0, 0.0)
+        b = R2Point(0.0, 0.9)
+        c = R2Point(0.9, 0.9)
+        f = Polygon(a, b, c)
+        self.assertEqual(f.intersections(), inf)
+
+    # При добавлении новой точки, количество точек пересения может измениться
+    def test_intersections5(self):
+        a = R2Point(0.0, 0.0)
+        b = R2Point(0.0, 0.9)
+        c = R2Point(0.9, 0.9)
+        f = Polygon(a, b, c).add(R2Point(-0.9, 1.0))
+        self.assertEqual(f.intersections(), 2)
