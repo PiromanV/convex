@@ -28,7 +28,7 @@ class Point(Figure):
 
     def __init__(self, p):
         self.p = p
-        self._intersections = R2Point.count_points_intersect(p, p)
+        self._intersections, self.inf_intersections = R2Point.count_points_intersect(p, p)
 
     def intersections(self):
         return self._intersections
@@ -42,21 +42,10 @@ class Segment(Figure):
 
     def __init__(self, p, q):
         self.p, self.q = p, q
-        if R2Point.count_points_intersect(p, q) is inf:
-            self._inf_intersections = 1
-            self._intersections = 2
-        else:
-            self._inf_intersections = 0
-            self._intersections = R2Point.count_points_intersect(p, q)
+        self._intersections, self.inf_intersections = R2Point.count_points_intersect(p, q)
 
     def perimeter(self):
         return 2.0 * self.p.dist(self.q)
-
-    def intersections(self):
-        if self._inf_intersections:
-            return inf
-        else:
-            return self._intersections
 
     def add(self, r):
         if R2Point.is_triangle(self.p, self.q, r):
@@ -67,6 +56,12 @@ class Segment(Figure):
             return Segment(r, self.q)
         else:
             return Segment(self.p, r)
+
+    def intersections(self):
+        if self.inf_intersections:
+            return inf
+        else:
+            return self._intersections
 
 
 class Polygon(Figure):
@@ -81,32 +76,30 @@ class Polygon(Figure):
         else:
             self.points.push_last(a)
             self.points.push_first(c)
-        self._inf_intersections = 0
-        self._intersections = 0
-        if R2Point.count_points_intersect(a, b) is inf:
-            self._inf_intersections += 1
-            self._inf_intersections += 1
-        if R2Point.count_points_intersect(b, c) is inf:
-            self._inf_intersections += 1
-            self._inf_intersections += 1
-        if R2Point.count_points_intersect(c, a) is inf:
-            self._inf_intersections += 1
-            self._inf_intersections += 1
-        if not self._inf_intersections:
-            self._intersections = (R2Point.count_points_intersect(a, b) +
-                                   R2Point.count_points_intersect(b, c) +
-                                   R2Point.count_points_intersect(c, a))
         self._perimeter = a.dist(b) + b.dist(c) + c.dist(a)
         self._area = abs(R2Point.area(a, b, c))
+        self._intersections, self.inf_intersections = 0, 0
+        for (p, q) in [(a, b), (b, c), (a, c)]:
+            self.change_intersections(p, q, "sum")
 
-    def perimeter(self):
-        return self._perimeter
+    def change_intersections(self, p, q, s):
+        if s == "sum":
+            intersect_info = R2Point.count_points_intersect(p, q)
+            self.inf_intersections += intersect_info[1]
+            self._intersections += intersect_info[0]
+        elif s == "sub":
+            intersect_info = R2Point.count_points_intersect(p, q)
+            self.inf_intersections -= intersect_info[1]
+            self._intersections -= intersect_info[0]
 
     def intersections(self):
-        if self._inf_intersections:
+        if self.inf_intersections:
             return inf
         else:
             return self._intersections
+
+    def perimeter(self):
+        return self._perimeter
 
     def area(self):
         return self._area
@@ -124,54 +117,35 @@ class Polygon(Figure):
         if t.is_light(self.points.last(), self.points.first()):
 
             # учёт удаления ребра, соединяющего конец и начало дека
-            if R2Point.count_points_intersect(self.points.first(), self.points.last()) is inf:
-                self._inf_intersections -= 1
-            else:
-                self._intersections -= R2Point.count_points_intersect(self.points.first(), self.points.last())
             self._perimeter -= self.points.first().dist(self.points.last())
             self._area += abs(R2Point.area(t,
                                            self.points.last(),
                                            self.points.first()))
+            self.change_intersections(self.points.last(), self.points.first(), "sub")
 
             # удаление освещённых рёбер из начала дека
             p = self.points.pop_first()
             while t.is_light(p, self.points.first()):
-                if R2Point.count_points_intersect(self.points.first(), p) is inf:
-                    self._inf_intersections -= 1
-                    self._intersections -= 1
-                else:
-                    self._intersections -= R2Point.count_points_intersect(self.points.first(), p)
                 self._perimeter -= p.dist(self.points.first())
                 self._area += abs(R2Point.area(t, p, self.points.first()))
+                self.change_intersections(p, self.points.first(), "sub")
                 p = self.points.pop_first()
             self.points.push_first(p)
 
             # удаление освещённых рёбер из конца дека
             p = self.points.pop_last()
             while t.is_light(self.points.last(), p):
-                if R2Point.count_points_intersect(p, self.points.last()) is inf:
-                    self._inf_intersections -= 1
-                    self._intersections -= 1
-                else:
-                    self._intersections -= R2Point.count_points_intersect(p, self.points.last())
                 self._perimeter -= p.dist(self.points.last())
                 self._area += abs(R2Point.area(t, p, self.points.last()))
+                self.change_intersections(self.points.last(), p, "sub")
                 p = self.points.pop_last()
             self.points.push_last(p)
 
             # добавление двух новых рёбер
-            if R2Point.count_points_intersect(self.points.first(), t) is inf:
-                self._inf_intersections += 1
-                self._intersections += 1
-            if R2Point.count_points_intersect(t, self.points.last()) is inf:
-                self._inf_intersections += 1
-                self._intersections += 1
-            if (R2Point.count_points_intersect(t, self.points.last()) is not inf and
-                    R2Point.count_points_intersect(self.points.first(), t) is not inf):
-                self._intersections += (R2Point.count_points_intersect(self.points.first(), t) +
-                                        R2Point.count_points_intersect(t, self.points.last()))
             self._perimeter += (t.dist(self.points.first()) +
                                 t.dist(self.points.last()))
+            self.change_intersections(self.points.first(), t, "sum")
+            self.change_intersections(self.points.last(), t, "sum")
             self.points.push_first(t)
 
         return self

@@ -46,9 +46,10 @@ class R2Point:
             except:
                 rectangle = [R2Point(0.0, 0.0), R2Point(0.0, 1.0), R2Point(1.0, 1.0), R2Point(1.0, 0.0)]
         a, b, c, d = rectangle[0], rectangle[1], rectangle[2], rectangle[3]
+        is_inf = 0
         if self == point:
             return int((self.x == a.x or self.x == c.x) and (a.y <= self.y <= c.y) or
-                       (self.y == a.y or self.y == c.y) and (a.x <= self.x <= c.x))
+                       (self.y == a.y or self.y == c.y) and (a.x <= self.x <= c.x)), is_inf
         else:
             sides = [(a, b), (b, c), (c, d), (d, a)]
             cnt = 0
@@ -60,11 +61,11 @@ class R2Point:
                         cnt += 1
                 elif not (R2Point.is_triangle(self, point, p1) or R2Point.is_triangle(self, point, p2)):
                     if (self.is_inside(p1, p2) or point.is_inside(p1, p2) or p1.is_inside(self, point)) and point != self:
-                        return inf
+                        is_inf += 1
                 elif (not (R2Point.is_triangle(self, point, p1) and R2Point.is_triangle(self, point, p2)) and
                       (p1.is_inside(self, point) or p2.is_inside(self, point))):
                     cnt += 0.5
-        return int(cnt)
+        return int(cnt), is_inf
 
     # Совпадает ли точка с другой?
     def __eq__(self, other):
