@@ -44,12 +44,13 @@ class R2Point:
         return (p1.x - q1.x == 0) and (p2.x - q2.x == 0) or\
            (p1.y - q1.y == 0) and (p2.y - q2.y == 0)
 
-    # Сколько точек пересечения у стороны выпуклой оболочки с заданым прямоугольником?
+    # Сколько точек пересечения у стороны выпуклой
+    # оболочки с заданым прямоугольником?
     def count_points_intersect(self, point, rectangle=None):
         if rectangle is None:
             try:
                 from __main__ import rectangle
-            except:
+            except ImportError:
                 rectangle = [
                     R2Point(0.0, 0.0),
                     R2Point(0.0, 1.0),
@@ -61,10 +62,14 @@ class R2Point:
         intersections = int(self in rectangle) + int(point in rectangle)
 
         for p, q in (a, b), (b, c), (c, d), (d, a):
-            p_on_segment = not R2Point.is_triangle(p, self, point) and p.is_inside(self, point)
-            q_on_segment = not R2Point.is_triangle(q, self, point) and q.is_inside(self, point)
-            self_on_side = not R2Point.is_triangle(self, p, q) and self.is_inside(p, q)
-            point_on_side = not R2Point.is_triangle(point, p, q) and point.is_inside(p, q)
+            p_on_segment = not R2Point.is_triangle(p, self, point) and\
+                p.is_inside(self, point)
+            q_on_segment = not R2Point.is_triangle(q, self, point) and\
+                q.is_inside(self, point)
+            self_on_side = not R2Point.is_triangle(self, p, q) and\
+                self.is_inside(p, q)
+            point_on_side = not R2Point.is_triangle(point, p, q) and\
+                point.is_inside(p, q)
 
             lights = [
                     self.is_light(p, q),
@@ -77,7 +82,8 @@ class R2Point:
                 if self.is_inside(p, q):
                     return 1, False
             elif R2Point.is_colleniars(self, point, p, q):
-                if self_on_side or point_on_side or p_on_segment or q_on_segment:
+                if self_on_side or point_on_side or\
+                      p_on_segment or q_on_segment:
                     is_inf = True
             elif self_on_side and (self not in (p, q)) or\
                     point_on_side and (point not in (p, q)):
@@ -86,7 +92,7 @@ class R2Point:
                     q_on_segment and (q not in (self, point)):
                 intersections += 0.5
             elif (lights[0] ^ lights[1]) and (lights[2] ^ lights[3]) and\
-                not (self in (p, q) or point in (p, q)):
+                    not (self in (p, q) or point in (p, q)):
                 intersections += 1
 
         return intersections * (not is_inf), is_inf

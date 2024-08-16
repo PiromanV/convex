@@ -28,7 +28,8 @@ class Point(Figure):
 
     def __init__(self, p):
         self.p = p
-        self._intersections, self.inf_intersections = R2Point.count_points_intersect(p, p)
+        self._intersections, self.inf_intersections =\
+            R2Point.count_points_intersect(p, p)
 
     def intersections(self):
         return self._intersections
@@ -42,7 +43,8 @@ class Segment(Figure):
 
     def __init__(self, p, q):
         self.p, self.q = p, q
-        self._intersections, self.inf_intersections = R2Point.count_points_intersect(p, q)
+        self._intersections, self.inf_intersections =\
+            R2Point.count_points_intersect(p, q)
 
     def perimeter(self):
         return 2.0 * self.p.dist(self.q)
@@ -115,7 +117,8 @@ class Polygon(Figure):
             self._area += abs(R2Point.area(t,
                                            self.points.last(),
                                            self.points.first()))
-            self.change_intersections(self.points.last(), self.points.first(), 1)
+            self.change_intersections(self.points.last(),
+                                      self.points.first(), 1)
 
             # удаление освещённых рёбер из начала дека
             p = self.points.pop_first()
@@ -140,14 +143,15 @@ class Polygon(Figure):
                                 t.dist(self.points.last()))
             try:
                 from __main__ import rectangle
-            except:
+            except ImportError:
                 rectangle = [
                     R2Point(0.0, 0.0),
                     R2Point(0.0, 1.0),
                     R2Point(1.0, 1.0),
                     R2Point(1.0, 0.0)
                 ]
-            self._intersections -= (self.points.first() in rectangle) + (self.points.last() in rectangle)
+            self._intersections -= (self.points.first() in rectangle) +\
+                (self.points.last() in rectangle)
             self.change_intersections(self.points.first(), t)
             self.change_intersections(self.points.last(), t)
             self.points.push_first(t)

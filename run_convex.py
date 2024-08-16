@@ -12,7 +12,11 @@ try:
                  R2Point(max(a.x, c.x), min(a.y, c.y))]
     while True:
         f = f.add(R2Point())
-        print(f"S = {f.area()}, P = {f.perimeter()}, N = {f.intersections()}\n")
+        print(
+            f"S = {f.area()},",
+            f"P = {f.perimeter()},",
+            f"N = {f.intersections()}\n"
+        )
         print()
 except (EOFError, KeyboardInterrupt):
     print("\nStop")

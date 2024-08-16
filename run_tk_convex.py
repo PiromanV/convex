@@ -43,7 +43,11 @@ try:
         f = f.add(R2Point())
         tk.clean()
         f.draw(tk)
-        print(f"S = {f.area()}, P = {f.perimeter()}, N = {f.intersections()}\n")
+        print(
+                f"S = {f.area()},",
+                f"P = {f.perimeter()},",
+                f"N = {f.intersections()}\n"
+            )
 except (EOFError, KeyboardInterrupt):
     print("\nStop")
     tk.close()
