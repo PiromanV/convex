@@ -38,34 +38,59 @@ class R2Point:
         s = R2Point.area(a, b, self)
         return s < 0.0 or (s == 0.0 and not self.is_inside(a, b))
 
+    # Коллениарны ли 2 отрезка?
+    @staticmethod
+    def is_colleniars(p1, q1, p2, q2):
+        return (p1.x - q1.x == 0) and (p2.x - q2.x == 0) or\
+           (p1.y - q1.y == 0) and (p2.y - q2.y == 0)
+
     # Сколько точек пересечения у стороны выпуклой оболочки с заданым прямоугольником?
     def count_points_intersect(self, point, rectangle=None):
         if rectangle is None:
             try:
                 from __main__ import rectangle
             except:
-                rectangle = [R2Point(0.0, 0.0), R2Point(0.0, 1.0), R2Point(1.0, 1.0), R2Point(1.0, 0.0)]
+                rectangle = [
+                    R2Point(0.0, 0.0),
+                    R2Point(0.0, 1.0),
+                    R2Point(1.0, 1.0),
+                    R2Point(1.0, 0.0)
+                    ]
         a, b, c, d = rectangle[0], rectangle[1], rectangle[2], rectangle[3]
-        is_inf = 0
-        if self == point:
-            return int((self.x == a.x or self.x == c.x) and (a.y <= self.y <= c.y) or
-                       (self.y == a.y or self.y == c.y) and (a.x <= self.x <= c.x)), is_inf
-        else:
-            sides = [(a, b), (b, c), (c, d), (d, a)]
-            cnt = 0
-            for p1, p2 in sides:
-                if (R2Point.is_triangle(self, p1, p2) and R2Point.is_triangle(point, p1, p2) and
-                        R2Point.is_triangle(self, point, p1) and R2Point.is_triangle(self, point, p2)):
-                    if (p1.is_light(self, point) != p2.is_light(self, point) and
-                            self.is_light(p1, p2) != point.is_light(p1, p2)):
-                        cnt += 1
-                elif not (R2Point.is_triangle(self, point, p1) or R2Point.is_triangle(self, point, p2)):
-                    if (self.is_inside(p1, p2) or point.is_inside(p1, p2) or p1.is_inside(self, point)) and point != self:
-                        is_inf += 1
-                elif (not (R2Point.is_triangle(self, point, p1) and R2Point.is_triangle(self, point, p2)) and
-                      (p1.is_inside(self, point) or p2.is_inside(self, point))):
-                    cnt += 0.5
-        return int(cnt), is_inf
+        is_inf = False
+        intersections = int(self in rectangle) + int(point in rectangle)
+
+        for p, q in (a, b), (b, c), (c, d), (d, a):
+            p_on_segment = not R2Point.is_triangle(p, self, point) and p.is_inside(self, point)
+            q_on_segment = not R2Point.is_triangle(q, self, point) and q.is_inside(self, point)
+            self_on_side = not R2Point.is_triangle(self, p, q) and self.is_inside(p, q)
+            point_on_side = not R2Point.is_triangle(point, p, q) and point.is_inside(p, q)
+
+            lights = [
+                    self.is_light(p, q),
+                    point.is_light(p, q),
+                    p.is_light(self, point),
+                    q.is_light(self, point)
+                ]
+
+            if self == point:
+                if self.is_inside(p, q):
+                    return 1, False
+            elif R2Point.is_colleniars(self, point, p, q):
+                if self_on_side or point_on_side or p_on_segment or q_on_segment:
+                    is_inf = True
+            elif (self in (p, q)) or (point in (p, q)):
+                intersections += 0.5
+            elif self_on_side and (self not in (p, q)) or\
+                point_on_side and (point not in (p, q)):
+                intersections += 1
+            elif p_on_segment or q_on_segment:
+                intersections += 0.5
+            elif (lights[0] ^ lights[1]) and (lights[2] ^ lights[3]) and\
+                not (self in (p, q) or point in (p, q)):
+                intersections += 1
+
+        return int(intersections), is_inf
 
     # Совпадает ли точка с другой?
     def __eq__(self, other):
@@ -78,5 +103,7 @@ if __name__ == "__main__":  # pragma: no cover
     x = R2Point(1.0, 1.0)
     print(type(x), x.__dict__)
     print(x.dist(R2Point(1.0, 0.0)))
-    a, b, c = R2Point(0.0, 0.0), R2Point(1.0, 0.0), R2Point(1.0, 1.0)
+    a, b, c = R2Point(0.0, 0.0), R2Point(0.9, 0.0), R2Point(0.9, 0.9)
+    for (p, q) in [(a, b), (b, c), (c, a)]:
+        print(p.count_points_intersect(q))
     print(R2Point.area(a, c, b))

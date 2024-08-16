@@ -86,71 +86,72 @@ class TestR2Point(unittest.TestCase):
     def test_eq2(self):
         self.assertNotEqual(R2Point(1.0, 1.0), (1.0, 1.0))
 
+    # Блок тестов на модификацию
     # Точка лежит в заданном прямоугольнике
     def test_point_inside(self):
         point = R2Point(0.5, 0.5)
         intersection_count = point.count_points_intersect(point)
-        self.assertEqual(intersection_count, 0)
+        self.assertEqual(intersection_count, (0, False))
 
     # Точка лежит вне заданного прямоугольника
     def test_point_outside(self):
         point = R2Point(2.0, 2.0)
         intersection_count = point.count_points_intersect(point)
-        self.assertEqual(intersection_count, 0)
+        self.assertEqual(intersection_count, (0, False))
 
     # Точка лежит на стороне заданного прямоугольника
     def test_point_on_side(self):
         point = R2Point(0.5, 1.0)
         intersection_count = point.count_points_intersect(point)
-        self.assertEqual(intersection_count, 1)
+        self.assertEqual(intersection_count, (1, False))
 
     # Точка лежит в вершине заданного прямоугольника
     def test_point_on_edge(self):
         point = R2Point(0.0, 0.0)
         intersection_count = point.count_points_intersect(point)
-        self.assertEqual(intersection_count, 1)
+        self.assertEqual(intersection_count, (1, False))
 
     # Отрезок лежит внутри заданного прямоугольника
     def test_segment_inside(self):
         point = R2Point(0.25, 0.25)
         other_point = R2Point(0.75, 0.75)
         intersection_count = point.count_points_intersect(other_point)
-        self.assertEqual(intersection_count, 0)
+        self.assertEqual(intersection_count, (0, False))
 
     # Отрезок лежит вне заданного прямоугольника
     def test_segment_outside(self):
         point = R2Point(1.0, 2.0)
         other_point = R2Point(2.0, 1.0)
         intersection_count = point.count_points_intersect(other_point)
-        self.assertEqual(intersection_count, 0)
+        self.assertEqual(intersection_count, (0, False))
 
     # Отрезок пересекает одну сторону заданного прямоугольника
     def test_segment_intersects_one_side(self):
         point = R2Point(0.5, 0.5)
         other_point = R2Point(2.0, 1.5)
         intersection_count = point.count_points_intersect(other_point)
-        self.assertEqual(intersection_count, 1)
+        self.assertEqual(intersection_count, (1, False))
 
     # Отрезок пересекает две стороны заданного прямоугольника
     def test_segment_intersects_two_sides(self):
         point = R2Point(0.5, 1.2)
         other_point = R2Point(1.2, 0.5)
         intersection_count = point.count_points_intersect(other_point)
-        self.assertEqual(intersection_count, 2)
+        self.assertEqual(intersection_count, (2, False))
 
     # Отрезок пересекает одну вершину заданного прямоугольника
     def test_segment_intersects_one_edge(self):
         point = R2Point(0.5, 0.5)
         other_point = R2Point(1.5, 1.5)
         intersection_count = point.count_points_intersect(other_point)
-        self.assertEqual(intersection_count, 1)
+        self.assertEqual(intersection_count, (1, False))
 
     # Отрезок пересекает две вершины заданного прямоугольника
     def test_segment_intersects_two_edges(self):
         point = R2Point(-1.0, -1.0)
         other_point = R2Point(2.0, 2.0)
         intersection_count = point.count_points_intersect(other_point)
-        self.assertEqual(intersection_count, 2)
+        self.assertEqual(intersection_count, (2, False))
 
     # Отрезок коллениарен стороне заданного прямоугольника и пересекает ее
     # (бесконечно много точек пересечения)
@@ -158,4 +159,4 @@ class TestR2Point(unittest.TestCase):
         point = R2Point(0.25, 0.0)
         other_point = R2Point(0.75, 0.0)
         intersection_count = point.count_points_intersect(other_point)
-        self.assertEqual(intersection_count, inf)
+        self.assertEqual(intersection_count, (0, True))

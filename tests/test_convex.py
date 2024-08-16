@@ -125,7 +125,6 @@ class TestSegment(unittest.TestCase):
     # При добавлении точки двуугольник может превратиться в треугольник
     def test_add5(self):
         self.assertIsInstance(self.f.add(R2Point(0.0, 1.0)), Polygon)
-
     # Блок тестов на вычисление количества пересечений с заданным прямоугольником
     # Отрезок пересекает прямоугольник в 2 точках
     def test_intersections1(self):
@@ -248,5 +247,6 @@ class TestPolygon(unittest.TestCase):
         a = R2Point(0.0, 0.0)
         b = R2Point(0.0, 0.9)
         c = R2Point(0.9, 0.9)
-        f = Polygon(a, b, c).add(R2Point(-0.9, 0.9))
+        f = Polygon(a, b, c)
+        f.add(R2Point(-1.0, 0.9))
         self.assertEqual(f.intersections(), 2)

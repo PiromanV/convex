@@ -85,18 +85,15 @@ class Polygon(Figure):
     def change_intersections(self, p, q, s):
         if s == "sum":
             intersect_info = R2Point.count_points_intersect(p, q)
-            self.inf_intersections += intersect_info[1]
+            self.inf_intersections += int(intersect_info[1])
             self._intersections += intersect_info[0]
         elif s == "sub":
             intersect_info = R2Point.count_points_intersect(p, q)
-            self.inf_intersections -= intersect_info[1]
+            self.inf_intersections -= int(intersect_info[1])
             self._intersections -= intersect_info[0]
 
     def intersections(self):
-        if self.inf_intersections:
-            return inf
-        else:
-            return self._intersections
+        return inf if self.inf_intersections else self._intersections
 
     def perimeter(self):
         return self._perimeter
