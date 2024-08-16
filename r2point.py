@@ -103,7 +103,5 @@ if __name__ == "__main__":  # pragma: no cover
     x = R2Point(1.0, 1.0)
     print(type(x), x.__dict__)
     print(x.dist(R2Point(1.0, 0.0)))
-    a, b, c = R2Point(0.0, 0.0), R2Point(0.9, 0.0), R2Point(0.9, 0.9)
-    for (p, q) in [(a, b), (b, c), (c, a)]:
-        print(p.count_points_intersect(q))
+    a, b, c = R2Point(0.0, 0.0), R2Point(1.0, 0.0), R2Point(1.0, 1.0)
     print(R2Point.area(a, c, b))
