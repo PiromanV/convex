@@ -248,5 +248,5 @@ class TestPolygon(unittest.TestCase):
         b = R2Point(0.0, 0.9)
         c = R2Point(0.9, 0.9)
         f = Polygon(a, b, c)
-        f.add(R2Point(-1.0, 0.9))
+        f.add(R2Point(-0.9, 0.9))
         self.assertEqual(f.intersections(), 2)

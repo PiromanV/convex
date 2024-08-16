@@ -79,18 +79,17 @@ class R2Point:
             elif R2Point.is_colleniars(self, point, p, q):
                 if self_on_side or point_on_side or p_on_segment or q_on_segment:
                     is_inf = True
-            elif (self in (p, q)) or (point in (p, q)):
-                intersections += 0.5
             elif self_on_side and (self not in (p, q)) or\
-                point_on_side and (point not in (p, q)):
+                    point_on_side and (point not in (p, q)):
                 intersections += 1
-            elif p_on_segment or q_on_segment:
+            elif p_on_segment and (p not in (self, point)) or\
+                    q_on_segment and (q not in (self, point)):
                 intersections += 0.5
             elif (lights[0] ^ lights[1]) and (lights[2] ^ lights[3]) and\
                 not (self in (p, q) or point in (p, q)):
                 intersections += 1
 
-        return int(intersections), is_inf
+        return intersections * (not is_inf), is_inf
 
     # Совпадает ли точка с другой?
     def __eq__(self, other):

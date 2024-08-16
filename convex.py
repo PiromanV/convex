@@ -58,10 +58,7 @@ class Segment(Figure):
             return Segment(self.p, r)
 
     def intersections(self):
-        if self.inf_intersections:
-            return inf
-        else:
-            return self._intersections
+        return inf if self.inf_intersections else self._intersections
 
 
 class Polygon(Figure):
@@ -80,17 +77,17 @@ class Polygon(Figure):
         self._area = abs(R2Point.area(a, b, c))
         self._intersections, self.inf_intersections = 0, 0
         for (p, q) in [(a, b), (b, c), (a, c)]:
-            self.change_intersections(p, q, "sum")
+            self.change_intersections(p, q)
 
-    def change_intersections(self, p, q, s):
-        if s == "sum":
+    def change_intersections(self, p, q, sub=0):
+        if sub:
             intersect_info = R2Point.count_points_intersect(p, q)
-            self.inf_intersections += int(intersect_info[1])
-            self._intersections += intersect_info[0]
-        elif s == "sub":
-            intersect_info = R2Point.count_points_intersect(p, q)
-            self.inf_intersections -= int(intersect_info[1])
+            self.inf_intersections -= intersect_info[1]
             self._intersections -= intersect_info[0]
+        else:
+            intersect_info = R2Point.count_points_intersect(p, q)
+            self.inf_intersections += intersect_info[1]
+            self._intersections += intersect_info[0]
 
     def intersections(self):
         return inf if self.inf_intersections else self._intersections
@@ -118,14 +115,14 @@ class Polygon(Figure):
             self._area += abs(R2Point.area(t,
                                            self.points.last(),
                                            self.points.first()))
-            self.change_intersections(self.points.last(), self.points.first(), "sub")
+            self.change_intersections(self.points.last(), self.points.first(), 1)
 
             # удаление освещённых рёбер из начала дека
             p = self.points.pop_first()
             while t.is_light(p, self.points.first()):
                 self._perimeter -= p.dist(self.points.first())
                 self._area += abs(R2Point.area(t, p, self.points.first()))
-                self.change_intersections(p, self.points.first(), "sub")
+                self.change_intersections(p, self.points.first(), 1)
                 p = self.points.pop_first()
             self.points.push_first(p)
 
@@ -134,15 +131,25 @@ class Polygon(Figure):
             while t.is_light(self.points.last(), p):
                 self._perimeter -= p.dist(self.points.last())
                 self._area += abs(R2Point.area(t, p, self.points.last()))
-                self.change_intersections(self.points.last(), p, "sub")
+                self.change_intersections(self.points.last(), p, 1)
                 p = self.points.pop_last()
             self.points.push_last(p)
 
             # добавление двух новых рёбер
             self._perimeter += (t.dist(self.points.first()) +
                                 t.dist(self.points.last()))
-            self.change_intersections(self.points.first(), t, "sum")
-            self.change_intersections(self.points.last(), t, "sum")
+            try:
+                from __main__ import rectangle
+            except:
+                rectangle = [
+                    R2Point(0.0, 0.0),
+                    R2Point(0.0, 1.0),
+                    R2Point(1.0, 1.0),
+                    R2Point(1.0, 0.0)
+                ]
+            self._intersections -= (self.points.first() in rectangle) + (self.points.last() in rectangle)
+            self.change_intersections(self.points.first(), t)
+            self.change_intersections(self.points.last(), t)
             self.points.push_first(t)
 
         return self
