@@ -95,7 +95,7 @@ class R2Point:
                     not (self in (p, q) or point in (p, q)):
                 intersections += 1
 
-        return intersections * (not is_inf), is_inf
+        return int(intersections) * (not is_inf), is_inf
 
     # Совпадает ли точка с другой?
     def __eq__(self, other):
