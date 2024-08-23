@@ -41,10 +41,10 @@ try:
                  R2Point(max(a.x, c.x), min(a.y, c.y))]
     rectangle_polygon = Polygon(rectangle[0], rectangle[1], rectangle[2])
     rectangle_polygon.add(rectangle[3])
-    rectangle_polygon.draw(tk)
     while True:
         f = f.add(R2Point())
         tk.clean()
+        rectangle_polygon.draw(tk)
         f.draw(tk)
         print(
                 f"S = {f.area()},",
